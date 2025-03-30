@@ -21,7 +21,7 @@ tree = bot.tree
 
 @bot.event
 async def on_message(message):
-    print(f"Message received from {message.author}: {message.content}")
+    print("OCR key used:", os.getenv("OCR_SPACE_API_KEY"))
 
     if message.author == bot.user:
         return
