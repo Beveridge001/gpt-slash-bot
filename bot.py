@@ -4,12 +4,9 @@ from discord import app_commands
 import os
 from dotenv import load_dotenv
 
-import pytesseract
-from PIL import Image
 import requests
 from io import BytesIO
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-
+from PIL import Image
 
 load_dotenv()
 
@@ -30,18 +27,25 @@ async def on_message(message):
                 await message.channel.send("🖼️ Image received. Extracting text...")
 
                 img_data = await attachment.read()
-                img = Image.open(BytesIO(img_data))
+                image_file = BytesIO(img_data)
 
-                extracted_text = pytesseract.image_to_string(img)
+                response = requests.post(
+                    "https://api.ocr.space/parse/image",
+                    files={"filename": image_file},
+                    data={"apikey": os.getenv("OCR_SPACE_API_KEY"), "language": "eng"},
+                )
 
-                if extracted_text.strip():
-                    await message.channel.send(f"📄 Extracted Text:\n```{extracted_text[:1900]}```")
+                result = response.json()
+                if result.get("IsErroredOnProcessing"):
+                    await message.channel.send("❌ OCR failed.")
                 else:
-                    await message.channel.send("❌ No readable text found.")
+                    parsed_text = result["ParsedResults"][0]["ParsedText"]
+                    if parsed_text.strip():
+                        await message.channel.send(f"📄 Extracted Text:\n```{parsed_text[:1900]}```")
+                    else:
+                        await message.channel.send("❌ No readable text found.")
 
     await bot.process_commands(message)
-
-
 
 @bot.event
 async def on_ready():
