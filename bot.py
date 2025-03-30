@@ -4,6 +4,8 @@ from discord import app_commands
 import os
 from dotenv import load_dotenv
 
+import openai
+
 import requests
 from io import BytesIO
 from PIL import Image
@@ -64,5 +66,26 @@ async def on_ready():
 @tree.command(name="ping", description="Replies with Pong!")
 async def ping_command(interaction: discord.Interaction):
     await interaction.response.send_message("Pong!")
+
+import openai  # put at top if not already there
+
+@tree.command(name="chat", description="Talk to ChatGPT")
+@app_commands.describe(message="Your message to ChatGPT")
+async def chat_command(interaction: discord.Interaction, message: str):
+    await interaction.response.defer()
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": message}]
+        )
+        reply = response.choices[0].message.content
+    except openai.error.RateLimitError:
+        reply = "⏳ OpenAI rate limit hit. Try again soon."
+    except openai.error.OpenAIError as e:
+        reply = f"⚠️ OpenAI API error: {e}"
+
+    await interaction.followup.send(reply)
+
 
 bot.run(os.getenv("DISCORD_TOKEN"))
