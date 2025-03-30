@@ -3,6 +3,14 @@ from discord.ext import commands
 from discord import app_commands
 import os
 from dotenv import load_dotenv
+
+import pytesseract
+from PIL import Image
+import requests
+from io import BytesIO
+pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+
+
 load_dotenv()
 
 intents = discord.Intents.default()
@@ -19,9 +27,20 @@ async def on_message(message):
     if message.attachments:
         for attachment in message.attachments:
             if attachment.filename.lower().endswith((".png", ".jpg", ".jpeg")):
-                await message.channel.send("🖼️ Image received. Processing...")
+                await message.channel.send("🖼️ Image received. Extracting text...")
+
+                img_data = await attachment.read()
+                img = Image.open(BytesIO(img_data))
+
+                extracted_text = pytesseract.image_to_string(img)
+
+                if extracted_text.strip():
+                    await message.channel.send(f"📄 Extracted Text:\n```{extracted_text[:1900]}```")
+                else:
+                    await message.channel.send("❌ No readable text found.")
 
     await bot.process_commands(message)
+
 
 
 @bot.event
