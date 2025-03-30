@@ -46,8 +46,8 @@ async def on_message(message):
                     headers={"User-Agent": "Mozilla/5.0"}
                 )
 
-print("OCR response status:", response.status_code)
-print("OCR raw response:", response.text)
+		print("OCR response status:", response.status_code)
+		print("OCR raw response:", response.text)
 
                 try:
                     result = response.json()
