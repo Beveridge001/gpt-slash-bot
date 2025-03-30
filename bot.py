@@ -21,7 +21,7 @@ tree = bot.tree
 
 @bot.event
 async def on_message(message):
-print(f"Message received from {message.author}: {message.content}")
+    print(f"Message received from {message.author}: {message.content}")
 
     if message.author == bot.user:
         return
@@ -59,6 +59,7 @@ print(f"Message received from {message.author}: {message.content}")
                     await message.channel.send(f"⚠️ Error processing image: {e}")
 
     await bot.process_commands(message)
+
 
 @bot.event
 async def on_ready():
