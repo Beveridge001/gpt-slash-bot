@@ -30,22 +30,24 @@ async def on_message(message):
                 image_file = BytesIO(img_data)
 
                 response = requests.post(
-    "https://api.ocr.space/parse/image",
-    files={"filename": image_file},
-    data={"apikey": os.getenv("OCR_SPACE_API_KEY"), "language": "eng"},
-    headers={"User-Agent": "Mozilla/5.0"}
-)
+                    "https://api.ocr.space/parse/image",
+                    files={"filename": image_file},
+                    data={"apikey": os.getenv("OCR_SPACE_API_KEY"), "language": "eng"},
+                    headers={"User-Agent": "Mozilla/5.0"}
+                )
 
-
-                result = response.json()
-                if result.get("IsErroredOnProcessing"):
-                    await message.channel.send("❌ OCR failed.")
-                else:
-                    parsed_text = result["ParsedResults"][0]["ParsedText"]
-                    if parsed_text.strip():
-                        await message.channel.send(f"📄 Extracted Text:\n```{parsed_text[:1900]}```")
+                try:
+                    result = response.json()
+                    if result.get("IsErroredOnProcessing"):
+                        await message.channel.send("❌ OCR failed.")
                     else:
-                        await message.channel.send("❌ No readable text found.")
+                        parsed_text = result["ParsedResults"][0]["ParsedText"]
+                        if parsed_text.strip():
+                            await message.channel.send(f"📄 Extracted Text:\n```{parsed_text[:1900]}```")
+                        else:
+                            await message.channel.send("❌ No readable text found.")
+                except Exception as e:
+                    await message.channel.send(f"⚠️ Error processing image: {e}")
 
     await bot.process_commands(message)
 
