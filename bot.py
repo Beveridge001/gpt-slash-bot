@@ -11,13 +11,19 @@ from PIL import Image
 
 load_dotenv()
 
-client = OpenAI()
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
+
+@bot.event
+async def on_ready():
+    await tree.sync()
+    print(f"Logged in as {bot.user} (ID: {bot.user.id})")
+    print("Slash commands synced.")
 
 @bot.event
 async def on_message(message):
@@ -38,16 +44,15 @@ async def on_message(message):
                     "https://api.ocr.space/parse/image",
                     files={"filename": image_file},
                     data={
-    "apikey": os.getenv("OCR_SPACE_API_KEY"),
-    "language": "eng",
-    "isOverlayRequired": False
-},
-
+                        "apikey": os.getenv("OCR_SPACE_API_KEY"),
+                        "language": "eng",
+                        "isOverlayRequired": False
+                    },
                     headers={"User-Agent": "Mozilla/5.0"}
                 )
 
-    print("OCR response status:", response.status_code)
-    print("OCR raw response:", response.text)
+                print("OCR response status:", response.status_code)
+                print("OCR raw response:", response.text)
 
                 try:
                     result = response.json()
@@ -68,13 +73,6 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
-
-@bot.event
-async def on_ready():
-    await tree.sync()
-    print(f"Logged in as {bot.user} (ID: {bot.user.id})")
-    print("Slash commands synced.")
-
 @tree.command(name="ping", description="Replies with Pong!")
 async def ping_command(interaction: discord.Interaction):
     await interaction.response.send_message("Pong!")
@@ -91,7 +89,6 @@ async def chat_command(interaction: discord.Interaction, message: str):
         reply = response.choices[0].message.content
     except Exception as e:
         reply = f"⚠️ OpenAI error: {e}"
-
     await interaction.followup.send(reply)
 
 bot.run(os.getenv("DISCORD_TOKEN"))
