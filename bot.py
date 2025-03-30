@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import requests
 from io import BytesIO
-from PIL import Image
 
 load_dotenv()
 
@@ -42,7 +41,7 @@ async def on_message(message):
 
                 response = requests.post(
                     "https://api.ocr.space/parse/image",
-                    files={"filename": image_file},
+                    files={"file": (attachment.filename, image_file, attachment.content_type or "image/png")},
                     data={
                         "apikey": os.getenv("OCR_SPACE_API_KEY"),
                         "language": "eng",
