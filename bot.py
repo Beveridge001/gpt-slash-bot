@@ -6,8 +6,23 @@ from dotenv import load_dotenv
 load_dotenv()
 
 intents = discord.Intents.default()
+intents.message_content = True
+
 bot = commands.Bot(command_prefix="!", intents=intents)
 tree = bot.tree
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    if message.attachments:
+        for attachment in message.attachments:
+            if attachment.filename.lower().endswith((".png", ".jpg", ".jpeg")):
+                await message.channel.send("🖼️ Image received. Processing...")
+
+    await bot.process_commands(message)
+
 
 @bot.event
 async def on_ready():
@@ -19,5 +34,4 @@ async def on_ready():
 async def ping_command(interaction: discord.Interaction):
     await interaction.response.send_message("Pong!")
 
-import os
 bot.run(os.getenv("DISCORD_TOKEN"))
