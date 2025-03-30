@@ -30,10 +30,12 @@ async def on_message(message):
                 image_file = BytesIO(img_data)
 
                 response = requests.post(
-                    "https://api.ocr.space/parse/image",
-                    files={"filename": image_file},
-                    data={"apikey": os.getenv("OCR_SPACE_API_KEY"), "language": "eng"},
-                )
+    "https://api.ocr.space/parse/image",
+    files={"filename": image_file},
+    data={"apikey": os.getenv("OCR_SPACE_API_KEY"), "language": "eng"},
+    headers={"User-Agent": "Mozilla/5.0"}
+)
+
 
                 result = response.json()
                 if result.get("IsErroredOnProcessing"):
