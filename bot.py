@@ -37,7 +37,12 @@ async def on_message(message):
                 response = requests.post(
                     "https://api.ocr.space/parse/image",
                     files={"filename": image_file},
-                    data={"apikey": os.getenv("OCR_SPACE_API_KEY"), "language": "eng"},
+                    data={
+    "apikey": os.getenv("OCR_SPACE_API_KEY"),
+    "language": "eng",
+    "isOverlayRequired": False
+},
+
                     headers={"User-Agent": "Mozilla/5.0"}
                 )
 
