@@ -21,6 +21,8 @@ tree = bot.tree
 
 @bot.event
 async def on_message(message):
+print(f"Message received from {message.author}: {message.content}")
+
     if message.author == bot.user:
         return
 
