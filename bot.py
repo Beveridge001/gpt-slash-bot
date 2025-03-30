@@ -38,6 +38,10 @@ async def on_message(message):
 
                 try:
                     result = response.json()
+                    if isinstance(result, str):
+                        await message.channel.send("⚠️ OCR API returned text, not JSON. Check your API key or usage limit.")
+                        return
+
                     if result.get("IsErroredOnProcessing"):
                         await message.channel.send("❌ OCR failed.")
                     else:
